@@ -399,7 +399,7 @@ Creates and returns a new spot.
 - Request
 
   - Method: POST
-  - Route path: /spots
+  - Route path: /users/:userId/spots
   - Headers:
     - Content-Type: application/json
   - Body:
@@ -476,7 +476,10 @@ Create and return a new image for a spot specified by id.
 - Request
 
   - Method: POST
-  - Route path: /spots/:spotId/images SELECT images.url FROM images JOIN spotImages ON spotImages.imageId = images.id JOIN spots ON spotImages. spotImages.spotId = spots.id WHERE spots.id = 4
+  - Route path: /spots/:spotId/images 
+  
+  SELECT images.url FROM images JOIN spotImages ON spotImages.imageId = images.id JOIN spots ON spotImages. spotImages.spotId = spots.id WHERE spots.id = 4
+  
   - Headers:
     - Content-Type: application/json
   - Body:
@@ -524,8 +527,8 @@ Updates and returns an existing spot.
 - Require proper authorization: Spot must belong to the current user
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: PATCH
+  - Route path: /users/:userId/spots/:spotId
   - Headers:
     - Content-Type: application/json
   - Body:
@@ -614,8 +617,8 @@ Deletes an existing spot.
 - Require proper authorization: Spot must belong to the current user
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: DELETE 
+  - Route path: /users/:userId/spots/:spotId
   - Body: none
 
 - Successful Response
@@ -653,8 +656,8 @@ Returns all the reviews written by the current user.
 - Require Authentication: true
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: GET
+  - Route path: /users/:userId/reviews
   - Body: none
 
 - Successful Response
@@ -711,8 +714,8 @@ Returns all the reviews that belong to a spot specified by id.
 - Require Authentication: false
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: GET
+  - Route path: /spots/:spotId/reviews
   - Body: none
 
 - Successful Response
@@ -769,8 +772,9 @@ Create and return a new review for a spot specified by id.
 - Require Authentication: true
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: POST
+  - Route path: /spots/:spotId/reviews
+
   - Headers:
     - Content-Type: application/json
   - Body:
@@ -852,8 +856,8 @@ Create and return a new image for a review specified by id.
 - Require proper authorization: Review must belong to the current user
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: POST
+  - Route path: /users/:userId/reviews/:reviewId/images
   - Headers:
     - Content-Type: application/json
   - Body:
@@ -913,8 +917,8 @@ Update and return an existing review.
 - Require proper authorization: Review must belong to the current user
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: PATCH
+  - Route path: /users/:userId/reviews/:reviewId
   - Headers:
     - Content-Type: application/json
   - Body:
