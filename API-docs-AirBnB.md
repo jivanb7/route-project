@@ -476,10 +476,10 @@ Create and return a new image for a spot specified by id.
 - Request
 
   - Method: POST
-  - Route path: /spots/:spotId/images 
-  
+  - Route path: /spots/:spotId/images
+
   SELECT images.url FROM images JOIN spotImages ON spotImages.imageId = images.id JOIN spots ON spotImages. spotImages.spotId = spots.id WHERE spots.id = 4
-  
+
   - Headers:
     - Content-Type: application/json
   - Body:
@@ -617,7 +617,7 @@ Deletes an existing spot.
 - Require proper authorization: Spot must belong to the current user
 - Request
 
-  - Method: DELETE 
+  - Method: DELETE
   - Route path: /users/:userId/spots/:spotId
   - Body: none
 
@@ -773,7 +773,7 @@ Create and return a new review for a spot specified by id.
 - Request
 
   - Method: POST
-  - Route path: /spots/:spotId/reviews
+  - Route path: /users/:userId/reviews/new/:spotId
 
   - Headers:
     - Content-Type: application/json
@@ -918,7 +918,7 @@ Update and return an existing review.
 - Request
 
   - Method: PATCH
-  - Route path: /users/:userId/reviews/:reviewId
+  - Route path: /users/:userId/reviews/edit/:reviewId
   - Headers:
     - Content-Type: application/json
   - Body:
@@ -987,8 +987,8 @@ Delete an existing review.
 - Require proper authorization: Review must belong to the current user
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: DELETE
+  - Route path: /users/:userId/reviews/delete/:reviewId
   - Body: none
 
 - Successful Response
@@ -1026,8 +1026,8 @@ Return all the bookings that the current user has made.
 - Require Authentication: true
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: GET
+  - Route path: /users/:userId/bookings
   - Body: none
 
 - Successful Response
@@ -1073,8 +1073,8 @@ Return all the bookings for a spot specified by id.
 - Require Authentication: true
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: GET
+  - Route path: /spots/:spotId/bookings
   - Body: none
 
 - Successful Response: If you ARE NOT the owner of the spot.
@@ -1145,8 +1145,8 @@ Create and return a new booking from a spot specified by id.
 - Require proper authorization: Spot must NOT belong to the current user
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: POST
+  - Route path: /spots/:spotId/bookings
   - Headers:
     - Content-Type: application/json
   - Body:
@@ -1232,8 +1232,8 @@ Update and return an existing booking.
 - Require proper authorization: Booking must belong to the current user
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: PATCH
+  - Route path: /users/:userId/bookings/:bookingId
   - Headers:
     - Content-Type: application/json
   - Body:
@@ -1333,8 +1333,8 @@ Delete an existing booking.
   Spot must belong to the current user
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: DELETE
+  - Route path: /users/:userId/bookings/:bookingId
   - Body: none
 
 - Successful Response
@@ -1386,8 +1386,8 @@ Delete an existing image for a Spot.
 - Require proper authorization: Spot must belong to the current user
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: DELETE
+  - Route path: /spots/:spotId/images/:imageId
   - Body: none
 
 - Successful Response
@@ -1424,8 +1424,8 @@ Delete an existing image for a Review.
 - Require proper authorization: Review must belong to the current user
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: DELETE
+  - Route path: /users/:userId/reviews/:reviewId/images/:imageId
   - Body: none
 
 - Successful Response
@@ -1461,8 +1461,8 @@ Return spots filtered by query parameters.
 - Require Authentication: false
 - Request
 
-  - Method: ?
-  - Route path: ?
+  - Method: GET
+  - Route path: /spots?page=1/size=4/minLat=3.4/maxLat=4.5/minLng=4.5/maxLng=2.3/minPrice=345.00/maxPrice=1000.00
   - Query Parameters
     - page: integer, minimum: 1, default: 1
     - size: integer, minimum: 1, maximum: 20, default: 20
