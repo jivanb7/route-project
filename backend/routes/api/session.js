@@ -27,10 +27,6 @@ const validateLogin = [
 ];
 
 // Log in
-// backend/routes/api/session.js
-// ...
-
-// Log in
 router.post("/", validateLogin, async (req, res, next) => {
   const { credential, password } = req.body;
 
@@ -55,6 +51,8 @@ router.post("/", validateLogin, async (req, res, next) => {
     id: user.id,
     email: user.email,
     username: user.username,
+    firstName: user.firstName,
+    lastName: user.lastName,
   };
 
   await setTokenCookie(res, safeUser);
@@ -70,7 +68,7 @@ router.delete("/", (_req, res) => {
   return res.json({ message: "success" });
 });
 
-// Restore session user
+// Restore session user - get the currently logged in user
 router.get("/", (req, res) => {
   const { user } = req;
   if (user) {
@@ -78,6 +76,8 @@ router.get("/", (req, res) => {
       id: user.id,
       email: user.email,
       username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
     return res.json({
       user: safeUser,
