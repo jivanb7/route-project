@@ -19,7 +19,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          isAlphanumeric: true,
           isCapitalized(value) {
             const addyArray = value.split(" ");
             for (let addy of addyArray) {
@@ -34,7 +33,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          isAlpha: true,
           isCapitalized(value) {
             const cityNames = value.split(" ");
             for (let cityName of cityNames) {
@@ -49,7 +47,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         validate: {
           len: [1, 20],
-          isAlpha: true,
           isCapitalized(value) {
             const stateNames = value.split(" ");
             for (let stateName of stateNames) {
@@ -64,7 +61,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          isAlpha: true,
           isCapitalized(value) {
             const countryNames = value.split(" ");
             for (let countryName of countryNames) {
@@ -120,10 +116,3 @@ module.exports = (sequelize, DataTypes) => {
   );
   return Spot;
 };
-
-//  await queryInterface.addColumn(options, "ownerId", {
-//    type: Sequelize.INTEGER,
-//    allowNull: false,
-//    references: { model: "Users" },
-//    onDelete: "CASCADE",
-//  });

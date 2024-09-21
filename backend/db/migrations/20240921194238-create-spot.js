@@ -20,22 +20,18 @@ module.exports = {
         address: {
           type: Sequelize.STRING,
           allowNull: false,
-          isAlphanumeric: true,
         },
         city: {
           type: Sequelize.STRING,
           allowNull: false,
-          isAlpha: true,
         },
         state: {
           type: Sequelize.STRING,
-          len: [1, 20],
-          isAlpha: true,
+          allowNull: true,
         },
         country: {
           type: Sequelize.STRING,
           allowNull: false,
-          isAlpha: true,
         },
         lat: {
           type: Sequelize.DECIMAL,
@@ -48,17 +44,14 @@ module.exports = {
         name: {
           type: Sequelize.STRING,
           allowNull: false,
-          len: [1, 30],
         },
         description: {
           type: Sequelize.STRING,
           allowNull: false,
-          len: [1, 300],
         },
         price: {
           type: Sequelize.DECIMAL,
           allowNull: false,
-          min: 0,
         },
         createdAt: {
           allowNull: false,
@@ -75,7 +68,7 @@ module.exports = {
     );
   },
   async down(queryInterface, Sequelize) {
-    options.tableName = "Users";
+    options.tableName = "Spots";
     return queryInterface.dropTable(options);
   },
 };
