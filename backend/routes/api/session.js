@@ -8,12 +8,8 @@ const { User } = require("../../db/models");
 
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
-// ...
 
 const router = express.Router();
-
-// backend/routes/api/session.js
-// ...
 
 const validateLogin = [
   check("credential")
@@ -55,7 +51,7 @@ router.post("/", validateLogin, async (req, res, next) => {
     lastName: user.lastName,
   };
 
-  await setTokenCookie(res, safeUser);
+  await setTokenCookie(res, safeUser); // jwt.sign() inside of setToken can run sync or async and can decide in the moment how it needs to run.  That's why we need an await.
 
   return res.json({
     user: safeUser,
@@ -70,7 +66,7 @@ router.delete("/", (_req, res) => {
 
 // Restore session user - get the currently logged in user
 router.get("/", (req, res) => {
-  const { user } = req;
+  const { user } = req; // user comes out of req because of the cookie set to the client inside setToken
   if (user) {
     const safeUser = {
       id: user.id,

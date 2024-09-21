@@ -53,8 +53,6 @@ const routes = require("./routes");
 
 app.use(routes); // Connect all the routes
 
-// Error handling routes
-
 // Catch unhandled requests and forward to error handler.
 app.use((_req, _res, next) => {
   const err = new Error("The requested resource couldn't be found.");
@@ -63,6 +61,8 @@ app.use((_req, _res, next) => {
   err.status = 404;
   next(err); // implies that there's another middleware that's meant to handle errors
 });
+
+// Error handling routes
 
 const { ValidationError } = require("sequelize");
 
