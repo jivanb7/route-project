@@ -8,7 +8,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Spot.belongsTo(models.User, {
+        foreignKey: "ownerId",
+      });
     }
   }
   Spot.init(
@@ -82,3 +84,10 @@ module.exports = (sequelize, DataTypes) => {
   );
   return Spot;
 };
+
+//  await queryInterface.addColumn(options, "ownerId", {
+//    type: Sequelize.INTEGER,
+//    allowNull: false,
+//    references: { model: "Users" },
+//    onDelete: "CASCADE",
+//  });
