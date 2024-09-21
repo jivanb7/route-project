@@ -20,19 +20,44 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           isAlphanumeric: true,
+          isCapitalized(value) {
+            const addyArray = value.split(" ");
+            for (let addy of addyArray) {
+              if (addy[0].toUpperCase() !== addy[0]) {
+                throw new Error("Names in address must be capitalized");
+              }
+            }
+          },
         },
       },
       city: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: { isAlpha: true },
+        validate: {
+          isAlpha: true,
+          isCapitalized(value) {
+            const cityNames = value.split(" ");
+            for (let cityName of cityNames) {
+              if (cityName[0].toUpperCase() !== cityName[0]) {
+                throw new Error("City names must be capitalized");
+              }
+            }
+          },
+        },
       },
       state: {
         type: DataTypes.STRING,
         validate: {
-          len: [2],
-          isUpperCase: true,
+          len: [1, 20],
           isAlpha: true,
+          isCapitalized(value) {
+            const stateNames = value.split(" ");
+            for (let stateName of stateNames) {
+              if (stateName[0].toUpperCase() !== stateName[0]) {
+                throw new Error("State names must be capitalized");
+              }
+            }
+          },
         },
       },
       country: {
@@ -40,6 +65,17 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           isAlpha: true,
+          isCapitalized(value) {
+            const countryNames = value.split(" ");
+            for (let countryName of countryNames) {
+              if (
+                countryName !== "of" &&
+                countryName[0].toUpperCase() !== countryName[0]
+              ) {
+                throw new Error("Country names must be capitalized");
+              }
+            }
+          },
         },
       },
       lat: {

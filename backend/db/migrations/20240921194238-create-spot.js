@@ -29,8 +29,7 @@ module.exports = {
         },
         state: {
           type: Sequelize.STRING,
-          len: [2],
-          isUpperCase: true,
+          len: [1, 20],
           isAlpha: true,
         },
         country: {
