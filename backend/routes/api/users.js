@@ -8,6 +8,8 @@ const { User } = require("../../db/models");
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
 
+const { Op } = require("sequelize");
+
 const router = express.Router();
 
 const validateSignup = [
@@ -24,12 +26,42 @@ const validateSignup = [
     .exists({ checkFalsy: true })
     .isLength({ min: 6 })
     .withMessage("Password must be 6 characters or more."),
+  check("firstName")
+    .exists({ checkFalsy: true })
+    .isLength({ min: 1 })
+    .withMessage("First Name is required"),
+  check("lastName")
+    .exists({ checkFalsy: true })
+    .isLength({ min: 1 })
+    .withMessage("Last Name is required"),
   handleValidationErrors,
 ];
 
 // Sign up
-router.post("/", validateSignup, async (req, res) => {
+router.post("/", validateSignup, async (req, res, next) => {
   const { email, password, username, firstName, lastName } = req.body;
+  const existingUser = await User.unscoped().findOne({
+    where: {
+      [Op.or]: {
+        username,
+        email,
+      },
+    },
+  });
+
+  if (existingUser) {
+    const err = {
+      message: "User already exists",
+      errors: {},
+    };
+    if (existingUser.email === email) {
+      err.errors.email = "User with that email already exists";
+    } else if (existingUser.username === username) {
+      err.errors.username = "User with that username already exists";
+    }
+
+    return next(err);
+  }
   const hashedPassword = bcrypt.hashSync(password);
   const user = await User.create({
     email,
@@ -49,7 +81,7 @@ router.post("/", validateSignup, async (req, res) => {
 
   await setTokenCookie(res, safeUser);
 
-  return res.json({
+  return res.status(201).json({
     user: safeUser,
   });
 });
