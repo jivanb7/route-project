@@ -68,6 +68,19 @@ const spotsData = [
     description: "Great place to unwind and stay while in New York City!",
     price: 347,
   },
+  {
+    ownerId: 1,
+    address: "123 Broad Street Apt 2",
+    city: "New York",
+    state: "New York",
+    country: "United States of America",
+    lat: 45.7645358,
+    lng: -134.4730327,
+    name: "Demo Place Duplicate",
+    description:
+      "Great duplicate ofplace to unwind and stay while in New York City!",
+    price: 347,
+  },
 ];
 
 module.exports = {
