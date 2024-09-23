@@ -12,7 +12,7 @@ router.get("/", async (_req, res) => {
   });
 
   allSpots = allSpots.map((spot) => {
-    spot = spot.toJSON();
+    spot = spot.toJSON(); // this enables spread this is just a normal POJO
     let sumOfRatings = 0;
     spot.Reviews.forEach((review) => {
       sumOfRatings += review.stars;
@@ -21,9 +21,7 @@ router.get("/", async (_req, res) => {
     const preview = spot.SpotImages.find((spotImage) => {
       return spotImage.preview === true;
     });
-    const { Reviews, SpotImages, ...spotWithAssociations } = {
-      ...spot,
-    };
+    const { Reviews, SpotImages, ...spotWithAssociations } = spot;
 
     if (avgRating) {
       spotWithAssociations.avgRating = avgRating;
