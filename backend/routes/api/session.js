@@ -67,7 +67,7 @@ router.delete("/", (_req, res) => {
 
 // Restore session user - get the currently logged in user
 router.get("/", (req, res) => {
-  const { user } = req; // user comes out of req because of the cookie set to the client inside setToken
+  const { user } = req; // user comes out of req because of routes/api/index.js calling restoreUser() sets a user on the req object
   if (user) {
     const safeUser = {
       id: user.id,
