@@ -32,7 +32,7 @@ router.get("/", async (_req, res) => {
     }
     return spotWithAssociations;
   });
-  res.status(200).json(allSpots);
+  res.status(200).json({ Spots: allSpots });
 });
 
 module.exports = router;
