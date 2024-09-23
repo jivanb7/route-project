@@ -87,7 +87,14 @@ app.use((err, _req, res, _next) => {
 
   if (isProduction) {
     // production error formatting
-    res.json({ message: message ? message : title, errors });
+    const responseError = {
+      message: message ? message : title,
+    };
+
+    if (message !== "Invalid credentials") {
+      responseError.errors = errors;
+    }
+    res.json(responseError);
   } else {
     // development error formatting
     res.json({
