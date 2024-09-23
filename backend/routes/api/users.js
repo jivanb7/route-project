@@ -8,6 +8,8 @@ const { User } = require("../../db/models");
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
 
+const { Op } = require("sequelize");
+
 const router = express.Router();
 
 const validateSignup = [
@@ -28,8 +30,30 @@ const validateSignup = [
 ];
 
 // Sign up
-router.post("/", validateSignup, async (req, res) => {
+router.post("/", validateSignup, async (req, res, next) => {
   const { email, password, username, firstName, lastName } = req.body;
+  const existingUser = await User.unscoped().findOne({
+    where: {
+      [Op.or]: {
+        username,
+        email,
+      },
+    },
+  });
+
+  if (existingUser) {
+    const err = {
+      message: "User already exists",
+      errors: {},
+    };
+    if (existingUser.email === email) {
+      err.errors.email = "User with that email already exists";
+    } else if (existingUser.username === username) {
+      err.errors.username = "User with that username already exists";
+    }
+
+    return next(err);
+  }
   const hashedPassword = bcrypt.hashSync(password);
   const user = await User.create({
     email,
