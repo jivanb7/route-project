@@ -132,7 +132,7 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           min: 0,
           isNumber(val) {
-            if (typeof val !== "number") {
+            if (typeof val !== "number" || val < 0) {
               throw new Error("Price per day must be a positive number");
             }
           },
