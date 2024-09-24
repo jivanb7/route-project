@@ -85,15 +85,17 @@ app.use((err, req, res, _next) => {
   const { title, stack, status, message, errors } = err;
   res.status(status || 500);
 
-  if (isProduction) {
+  if (true) {
     // production error formatting
     const responseError = {
-      message: message ? message : title,
+      // message: message ? message : title,
+      message: message,
     };
 
     if (
       message !== "Invalid credentials" &&
-      title !== "Authentication required"
+      message !== "Forbidden" &&
+      message !== "Authentication required"
     ) {
       responseError.errors = errors;
     }

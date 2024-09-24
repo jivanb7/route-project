@@ -67,7 +67,7 @@ const requireAuth = function (req, _res, next) {
 
   const err = new Error("Authentication required");
   err.title = "Authentication required";
-  err.errors = { message: "Authentication required" };
+  err.message = "Authentication required";
   err.status = 401;
   return next(err);
 };
@@ -75,7 +75,7 @@ const requireAuth = function (req, _res, next) {
 const blockAuthorization = function (next) {
   const err = new Error("Require proper authorization");
   err.title = "Require proper authorization";
-  err.errors = { message: "Forbidden" };
+  err.message = "Forbidden";
   err.status = 403;
   return next(err);
 };
