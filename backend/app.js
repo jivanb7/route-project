@@ -91,7 +91,10 @@ app.use((err, req, res, _next) => {
       message: message ? message : title,
     };
 
-    if (message !== "Invalid credentials") {
+    if (
+      message !== "Invalid credentials" &&
+      title !== "Authentication required"
+    ) {
       responseError.errors = errors;
     }
 
