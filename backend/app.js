@@ -94,7 +94,8 @@ app.use((err, req, res, _next) => {
     if (
       message !== "Invalid credentials" &&
       message !== "Forbidden" &&
-      message !== "Authentication required"
+      message !== "Authentication required" &&
+      message !== "The requested resource couldn't be found."
     ) {
       responseError.errors = errors;
     }
