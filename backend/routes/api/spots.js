@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { requireAuth } = require("../../utils/auth");
+const { requireAuth, blockAuthorization } = require("../../utils/auth");
 
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
@@ -8,6 +8,68 @@ const { handleValidationErrors } = require("../../utils/validation");
 const { Spot, SpotImage, Review, User } = require("../../db/models");
 
 const router = express.Router();
+
+// resuable custom error for any spot that is not found in the database
+const spotDoesNotExistError = new Error("Spot couldn't be found");
+spotDoesNotExistError.status = 404;
+spotDoesNotExistError.message = "Spot couldn't be found";
+
+// spot authorization middleware for anywhere a user must own the spot
+const spotAuthorization = async (req, _res, next) => {
+  const userId = req.user.id;
+  const { spotId } = req.params;
+
+  const spot = await Spot.findByPk(spotId);
+
+  if (!spot) {
+    return next(spotDoesNotExistError);
+  }
+
+  if (userId !== spot.ownerId) {
+    return blockAuthorization(next);
+  }
+
+  next();
+};
+
+// validations for any spot details passed into the req.body
+const validateSpotDetails = [
+  check("address")
+    .exists({ checkFalsy: true })
+    .isLength({ min: 1 })
+    .withMessage("Street address is required"),
+  check("city")
+    .exists({ checkFalsy: true })
+    .isLength({ min: 1 })
+    .withMessage("City is required"),
+  check("state")
+    .exists({ checkFalsy: true })
+    .isLength({ min: 1 })
+    .withMessage("State is required"),
+  check("country")
+    .exists({ checkFalsy: true })
+    .isLength({ min: 1 })
+    .withMessage("Country is required"),
+  check("lat")
+    .exists({ checkFalsy: true })
+    .withMessage("Latitude must be within -90 and 90"),
+  check("lng")
+    .exists({ checkFalsy: true })
+    .withMessage("Longitude must be within -180 and 180"),
+  check("name")
+    .exists({ checkFalsy: true })
+    .isLength({ min: 1, max: 49 })
+    .withMessage("Name must be less than 50 characters"),
+  check("description")
+    .exists({ checkFalsy: true })
+    .isLength({ min: 1 })
+    .withMessage("Description is required"),
+  check("price")
+    .exists({ checkFalsy: true })
+    .isInt({ min: 0 })
+    .withMessage("Price per day must be a positive number"),
+  handleValidationErrors,
+];
 
 const getAverageRating = (spotReviews) => {
   let sumOfRatings = 0;
@@ -87,9 +149,7 @@ router.get("/:spotId", async (req, res, next) => {
   });
 
   if (!spot) {
-    const err = new Error("Spot couldn't be found");
-    err.status = 404;
-    return next(err);
+    return next(spotDoesNotExistError);
   }
 
   const spotAsPojo = spot.toJSON();
@@ -111,50 +171,8 @@ router.get("/:spotId", async (req, res, next) => {
   res.status(200).json(spotToReturn);
 });
 
-// validations for new spot information
-
-const validateNewSpot = [
-  check("address")
-    .exists({ checkFalsy: true })
-    .isLength({ min: 1 })
-    .withMessage("Street address is required"),
-  check("city")
-    .exists({ checkFalsy: true })
-    .isLength({ min: 1 })
-    .withMessage("City is required"),
-  check("state")
-    .exists({ checkFalsy: true })
-    .isLength({ min: 1 })
-    .withMessage("State is required"),
-  check("country")
-    .exists({ checkFalsy: true })
-    .isLength({ min: 1 })
-    .withMessage("Country is required"),
-  check("lat")
-    .exists({ checkFalsy: true })
-    .isInt()
-    .withMessage("Latitude must be within -90 and 90"),
-  check("lng")
-    .exists({ checkFalsy: true })
-    .isInt()
-    .withMessage("Longitude must be within -180 and 180"),
-  check("name")
-    .exists({ checkFalsy: true })
-    .isLength({ min: 1, max: 49 })
-    .withMessage("Name must be less than 50 characters"),
-  check("description")
-    .exists({ checkFalsy: true })
-    .isLength({ min: 1 })
-    .withMessage("Description is required"),
-  check("price")
-    .exists({ checkFalsy: true })
-    .isInt({ min: 0 })
-    .withMessage("Price per day must be a positive number"),
-  handleValidationErrors,
-];
-
 // create a new spot
-router.post("/", requireAuth, validateNewSpot, async (req, res) => {
+router.post("/", requireAuth, validateSpotDetails, async (req, res) => {
   const spotDetails = {
     ownerId: req.user.id,
     ...req.body,
@@ -164,5 +182,74 @@ router.post("/", requireAuth, validateNewSpot, async (req, res) => {
 
   res.status(201).json(newSpot);
 });
+
+// add an image to a spot by spot id
+router.post(
+  "/:spotId/images",
+  requireAuth,
+  spotAuthorization,
+  async (req, res, next) => {
+    const { spotId } = req.params;
+    const spot = await Spot.findByPk(spotId);
+
+    const newImageForSpot = await SpotImage.create({
+      ...req.body,
+      spotId: spot.id,
+    });
+
+    const imageDataPojo = newImageForSpot.toJSON();
+    const {
+      createdAt,
+      updatedAt,
+      spotId: idOfSpot,
+      ...remainingProperties
+    } = imageDataPojo;
+
+    res.status(201).json(remainingProperties);
+  }
+);
+
+// edit a spot by id
+router.put(
+  "/:spotId",
+  requireAuth,
+  spotAuthorization,
+  validateSpotDetails,
+  async (req, res, next) => {
+    const { spotId } = req.params;
+    const spotToEdit = await Spot.findByPk(spotId);
+
+    const {
+      address,
+      city,
+      state,
+      country,
+      lat,
+      lng,
+      name,
+      description,
+      price,
+    } = req.body;
+
+    const currentTimeStamp = new Date();
+
+    spotToEdit.set({
+      address,
+      city,
+      state,
+      country,
+      lat,
+      lng,
+      name,
+      description,
+      price,
+      updatedAt: currentTimeStamp,
+    });
+
+    await spotToEdit.save();
+    const updatedSpot = await spotToEdit.reload();
+    res.status(200).json(updatedSpot);
+  }
+);
 
 module.exports = router;

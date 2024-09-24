@@ -88,12 +88,13 @@ app.use((err, req, res, _next) => {
   if (isProduction) {
     // production error formatting
     const responseError = {
-      message: message ? message : title,
+      message,
     };
 
     if (
       message !== "Invalid credentials" &&
-      title !== "Authentication required"
+      message !== "Forbidden" &&
+      message !== "Authentication required"
     ) {
       responseError.errors = errors;
     }
