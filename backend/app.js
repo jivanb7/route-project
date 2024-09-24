@@ -85,11 +85,10 @@ app.use((err, req, res, _next) => {
   const { title, stack, status, message, errors } = err;
   res.status(status || 500);
 
-  if (true) {
+  if (isProduction) {
     // production error formatting
     const responseError = {
-      // message: message ? message : title,
-      message: message,
+      message,
     };
 
     if (
