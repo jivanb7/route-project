@@ -81,13 +81,24 @@ app.use((err, _req, _res, next) => {
 });
 
 // Error formatter
-app.use((err, _req, res, _next) => {
+app.use((err, req, res, _next) => {
   const { title, stack, status, message, errors } = err;
   res.status(status || 500);
 
   if (isProduction) {
     // production error formatting
-    res.json({ message: message ? message : title, errors });
+    const responseError = {
+      message: message ? message : title,
+    };
+
+    if (
+      message !== "Invalid credentials" &&
+      title !== "Authentication required"
+    ) {
+      responseError.errors = errors;
+    }
+
+    res.json(responseError);
   } else {
     // development error formatting
     res.json({

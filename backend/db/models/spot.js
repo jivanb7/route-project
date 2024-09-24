@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       address: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: "unique-address",
         validate: {
           isCapitalized(value) {
             const addyArray = value.split(" ");
@@ -45,6 +46,7 @@ module.exports = (sequelize, DataTypes) => {
       city: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: "unique-address",
         validate: {
           isCapitalized(value) {
             const cityNames = value.split(" ");
@@ -58,6 +60,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       state: {
         type: DataTypes.STRING,
+        allowNull: false,
+        unique: "unique-address",
         validate: {
           len: [1, 20],
           isCapitalized(value) {
@@ -73,6 +77,7 @@ module.exports = (sequelize, DataTypes) => {
       country: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: "unique-address",
         validate: {
           isCapitalized(value) {
             const countryNames = value.split(" ");
@@ -120,6 +125,7 @@ module.exports = (sequelize, DataTypes) => {
         // Create a unique index for full addresses
         {
           unique: true,
+          name: "unique-address",
           fields: ["address", "city", "state", "country"],
         },
       ],
