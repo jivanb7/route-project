@@ -5,7 +5,13 @@ const { requireAuth, blockAuthorization } = require("../../utils/auth");
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
 
-const { Spot, SpotImage, Review, User } = require("../../db/models");
+const {
+  Spot,
+  SpotImage,
+  Review,
+  User,
+  ReviewImage,
+} = require("../../db/models");
 
 const router = express.Router();
 
@@ -253,7 +259,6 @@ router.put(
 );
 
 // delete a spot by id
-
 router.delete("/:spotId", requireAuth, spotAuthorization, async (req, res) => {
   const { spotId } = req.params;
   await Spot.destroy({
@@ -262,6 +267,32 @@ router.delete("/:spotId", requireAuth, spotAuthorization, async (req, res) => {
     },
   });
   res.status(200).json({ message: "Successfully deleted" });
+});
+
+// get all reviews of a spot by spotId
+router.get("/:spotId/reviews", async (req, res, next) => {
+  const { spotId } = req.params;
+
+  const spot = await Spot.findOne({
+    include: [
+      {
+        model: Review,
+        include: [
+          { model: ReviewImage, attributes: ["id", "url"] },
+          { model: User, attributes: ["id", "firstName", "lastName"] },
+        ],
+      },
+    ],
+    where: {
+      id: spotId,
+    },
+  });
+
+  if (!spot) {
+    return next(spotDoesNotExistError);
+  }
+
+  res.status(200).json({ Reviews: spot.Reviews });
 });
 
 module.exports = router;
