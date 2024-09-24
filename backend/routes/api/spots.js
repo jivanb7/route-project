@@ -9,7 +9,7 @@ const { Spot, SpotImage, Review, User } = require("../../db/models");
 
 const router = express.Router();
 
-const averageSpotRatings = (spotReviews) => {
+const getAverageRating = (spotReviews) => {
   let sumOfRatings = 0;
   spotReviews.forEach((review) => {
     sumOfRatings += review.stars;
@@ -27,7 +27,7 @@ const formatSpots = (spotsArray) => {
   return spotsArray.map((spot) => {
     spot = spot.toJSON(); // convert to POJO
 
-    const avgRating = averageSpotRatings(spot.Reviews);
+    const avgRating = getAverageRating(spot.Reviews);
     const preview = findSpotPreviewImage(spot);
 
     const { Reviews, SpotImages, price, lat, lng, ...spotWithAggregates } =
@@ -92,20 +92,23 @@ router.get("/:spotId", async (req, res, next) => {
     return next(err);
   }
 
-  const spotImages = spot.SpotImages;
-  const numReviews = spot.Reviews.length;
-  const spotOwner = spot.User;
+  const spotAsPojo = spot.toJSON();
 
-  const formattedSpot = {
-    ...formatSpots([spot])[0],
-    numReviews,
-    SpotImages: spotImages,
+  const numReviews = spotAsPojo.Reviews.length;
+  const spotOwner = spotAsPojo.User;
+  const avgStarRating = getAverageRating(spot.Reviews);
+
+  const spotToReturn = {
+    ...spotAsPojo,
     Owner: spotOwner,
+    numReviews,
+    avgStarRating,
   };
 
-  delete formattedSpot.User;
+  delete spotToReturn.User;
+  delete spotToReturn.Reviews;
 
-  res.status(200).json(formattedSpot);
+  res.status(200).json(spotToReturn);
 });
 
 // validations for new spot information
