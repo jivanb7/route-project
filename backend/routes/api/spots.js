@@ -21,7 +21,12 @@ router.get("/", async (_req, res) => {
     const preview = spot.SpotImages.find((spotImage) => {
       return spotImage.preview === true;
     });
-    const { Reviews, SpotImages, ...spotWithAssociations } = spot;
+    const { Reviews, SpotImages, price, lat, lng, ...spotWithAssociations } =
+      spot;
+
+    spotWithAssociations.price = parseInt(price);
+    spotWithAssociations.lat = parseInt(lat);
+    spotWithAssociations.lng = parseInt(lng);
 
     if (avgRating) {
       spotWithAssociations.avgRating = avgRating;
