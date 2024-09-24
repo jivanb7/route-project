@@ -1,7 +1,7 @@
 const express = require("express");
 
 const { requireAuth } = require("../../utils/auth");
-const { Spot, SpotImage, Review } = require("../../db/models");
+const { Spot, SpotImage, Review, User } = require("../../db/models");
 
 const router = express.Router();
 
@@ -65,6 +65,43 @@ router.get("/current", requireAuth, async (req, res) => {
   });
 
   res.status(200).json({ Spots: formatSpots(allSpotsByUser) });
+});
+
+// get details of a spot from an id
+router.get("/:spotId", async (req, res, next) => {
+  const { spotId } = req.params;
+
+  const spot = await Spot.findOne({
+    include: [
+      { model: SpotImage, attributes: ["id", "url", "preview"] },
+      Review,
+      { model: User, attributes: ["id", "firstName", "lastName"] },
+    ],
+    where: {
+      id: spotId,
+    },
+  });
+
+  if (!spot) {
+    const err = new Error("Spot couldn't be found");
+    err.status = 404;
+    return next(err);
+  }
+
+  const spotImages = spot.SpotImages;
+  const numReviews = spot.Reviews.length;
+  const spotOwner = spot.User;
+
+  const formattedSpot = {
+    ...formatSpots([spot])[0],
+    numReviews,
+    SpotImages: spotImages,
+    Owner: spotOwner,
+  };
+
+  delete formattedSpot.User;
+
+  res.status(200).json(formattedSpot);
 });
 
 module.exports = router;
