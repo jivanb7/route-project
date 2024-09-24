@@ -81,7 +81,7 @@ app.use((err, _req, _res, next) => {
 });
 
 // Error formatter
-app.use((err, req, res, _next) => {
+app.use((err, _req, res, _next) => {
   const { title, stack, status, message, errors } = err;
   res.status(status || 500);
 
