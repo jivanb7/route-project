@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { requireAuth } = require("../../utils/auth");
+const { requireAuth, blockAuthorization } = require("../../utils/auth");
 
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
@@ -163,6 +163,44 @@ router.post("/", requireAuth, validateNewSpot, async (req, res) => {
   const newSpot = await Spot.create(spotDetails);
 
   res.status(201).json(newSpot);
+});
+
+const spotAuth = (userId, ownerId) => {
+  return userId === ownerId;
+};
+
+// add an image to a spot by spot id
+router.post("/:spotId/images", requireAuth, async (req, res, next) => {
+  const userId = req.user.id;
+  const { spotId } = req.params;
+
+  const spot = await Spot.findByPk(spotId);
+
+  if (!spot) {
+    const err = new Error("Couldn't find a Spot with the specified id");
+    err.status = 404;
+    err.message = "Spot couldn't be found";
+    return next(err);
+  }
+
+  if (!spotAuth(userId, spot.ownerId)) {
+    return blockAuthorization(next);
+  }
+
+  const newImageForSpot = await SpotImage.create({
+    ...req.body,
+    spotId: spot.id,
+  });
+
+  const imageDataPojo = newImageForSpot.toJSON();
+  const {
+    createdAt,
+    updatedAt,
+    spotId: idOfSpot,
+    ...remainingProperties
+  } = imageDataPojo;
+
+  res.status(201).json(remainingProperties);
 });
 
 module.exports = router;
