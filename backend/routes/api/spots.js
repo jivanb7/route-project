@@ -5,7 +5,8 @@ const { requireAuth, blockAuthorization } = require("../../utils/auth");
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
 
-const { Spot, SpotImage, Review, User } = require("../../db/models");
+const { Spot, SpotImage, Review, User, Booking } = require("../../db/models");      // ADDED BOOKING
+const { Op } = require("sequelize");                                                // ADDED OP (OPERATOR) FROM SEQUELIZE
 
 const router = express.Router();
 
@@ -18,6 +19,10 @@ spotDoesNotExistError.message = "Spot couldn't be found";
 const spotAuthorization = async (req, _res, next) => {
   const userId = req.user.id;
   const { spotId } = req.params;
+
+  // if userid === spot.ownerid && req.url.includes bookings
+  // ( block authorization ) else 
+  // 
 
   const spot = await Spot.findByPk(spotId);
 
@@ -263,5 +268,85 @@ router.delete("/:spotId", requireAuth, spotAuthorization, async (req, res) => {
   });
   res.status(200).json({ message: "Successfully deleted" });
 });
+
+// get all Bookings for a Spot based on the Spot's id ////////////////////////////////
+router.get("/:spotId/bookings", requireAuth, async (req, res) => {
+  const { spotId } = req.params;                                                    // GET SpotId FROM REQ
+  const userId = req.user.id;                                                       // CREATE VARIABLE FOR ID FROM REQ.USER.ID FROM AUTH
+
+  const spot = await Spot.findByPk(spotId);
+  if (!spot) return res.status(404).json({message: spotDoesNotExistError.message}); // THROWS ERROR IF SPOT DOES NOT EXIST
+
+  const spotBookings = await Booking.findAll({
+    where: { spotId },
+    include: {
+      model: User,   
+      attributes: ['id', 'firstName', 'lastName'],          // OWNER OF SPOT WILL BE DISPLAYED USER INFO AND ETC
+    },
+    attributes: ['id', 'spotId', 'userId', 'startDate', 'endDate', 'createdAt', 'updatedAt'],
+  });
+
+  if (spot.ownerId === userId) {                            // IF OWNER OWNS SPOT, THEY WILL BE DISPLAYED ALL SENSITIVE INFO
+    return res.status(200).json({ Bookings: spotBookings });
+  } else {
+    const nonOwnerBookings = spotBookings.map(booking => ({ // IF PERSON DOES NOT OWN THE SPOT WILL RETURN BASIC INFO
+      spotId: booking.spotId,
+      startDate: booking.startDate,
+      endDate: booking.endDate,
+    }));
+
+    return res.status(200).json({ Bookings: nonOwnerBookings });  // RETURN BASIC INFO
+  }
+});
+
+// Create a Booking from a Spot based on the Spot's id /////////////////////////////////////
+router.post("/:spotId/bookings", requireAuth, async (req, res) => {
+
+  const { spotId } = req.params;            // GET SpotId FROM REQ
+
+  const { startDate, endDate } = req.body;  // DESTRUCTURE THE startDate AND endDate FROM REQ BODY  
+
+  const spot = await Spot.findByPk(spotId); // SpotId FIND BY PK
+  
+  if (!spot) {
+    return res.status(404).json({ message: spotDoesNotExistError.message}); // IF NO SPOT, THEN ERROR MESSAGE
+  }
+
+  // CONFLICT 
+  const conflictingBooking = await Booking.findOne({  // CHECK TO SEE BOOKINGS
+    where: {
+        spotId,                                     
+        [Op.or]: [                      // OR OPERATOR FORM SEQUELIZE
+            {
+                startDate: { 
+                    [Op.lt]: endDate,   
+                },
+                endDate: {
+                    [Op.gt]: startDate, 
+                },
+            },
+        ],
+    },
+});
+
+if (conflictingBooking) {              // IF TRUE, THEN ERROR BELOW WILL BE DISPLAYED
+    return res.status(403).json({
+        message: "Sorry, this spot is already booked for the specified dates",
+        errors: {
+            startDate: "Start date conflicts with an existing booking",
+            endDate: "End date conflicts with an existing booking",
+        },
+    });
+}
+
+  const newBooking = await Booking.create({ // CREATE OBJECT
+    userId: req.user.id,                    // USER ID IS DEFAULTED TO THE REQ AUTH USER
+    spotId,                                 // SPOT ID
+    startDate,                              // START DATE FROM REQ
+    endDate,                                // END DATE FROM REQ
+  });
+  return res.status(201).json(newBooking); 
+});
+
 
 module.exports = router;
