@@ -1,6 +1,8 @@
 const express = require("express");
 const { requireAuth, blockAuthorization } = require("../../utils/auth");
 
+const { validateReviewDetails } = require("./spots.js");
+
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
 
@@ -80,7 +82,6 @@ router.get("/current", requireAuth, async (req, res, next) => {
 });
 
 // create new image for a review specified by reviewId
-
 router.post(
   "/:reviewId/images",
   requireAuth,
@@ -114,6 +115,35 @@ router.post(
       id: newReviewImage.id,
       url: newReviewImage.url,
     });
+  }
+);
+
+// edit a review by reviewId
+router.put(
+  "/:reviewId",
+  requireAuth,
+  reviewAuthorization,
+  validateReviewDetails,
+  async (req, res) => {
+    const { reviewId } = req.params;
+    let { review, stars } = req.body;
+    stars = parseInt(stars);
+    // query for the review that we know exists and we know user has authorization to edit
+    const reviewInstance = await Review.findByPk(reviewId);
+    // generate a current timestamp to update the updatedAt property of the Review instance
+    const currentTimeStamp = new Date();
+    // run .set() on the returned Review instance to update all properties from req.body
+    reviewInstance.set({
+      review,
+      stars,
+      updatedAt: currentTimeStamp,
+    });
+    // run .save() on the returned Review instance to save the updated version back to the db
+    await reviewInstance.save();
+    // run .reload() to get the updated instance from the db
+    const reviewToDisplay = await reviewInstance.reload();
+    // return everything from the updated Review instance with status code 200
+    res.status(200).json(reviewToDisplay);
   }
 );
 
