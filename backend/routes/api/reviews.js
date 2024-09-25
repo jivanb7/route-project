@@ -128,21 +128,15 @@ router.put(
     const { reviewId } = req.params;
     let { review, stars } = req.body;
     stars = parseInt(stars);
-    // query for the review that we know exists and we know user has authorization to edit
     const reviewInstance = await Review.findByPk(reviewId);
-    // generate a current timestamp to update the updatedAt property of the Review instance
     const currentTimeStamp = new Date();
-    // run .set() on the returned Review instance to update all properties from req.body
     reviewInstance.set({
       review,
       stars,
       updatedAt: currentTimeStamp,
     });
-    // run .save() on the returned Review instance to save the updated version back to the db
     await reviewInstance.save();
-    // run .reload() to get the updated instance from the db
     const reviewToDisplay = await reviewInstance.reload();
-    // return everything from the updated Review instance with status code 200
     res.status(200).json(reviewToDisplay);
   }
 );
