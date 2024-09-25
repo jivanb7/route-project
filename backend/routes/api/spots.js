@@ -31,7 +31,10 @@ const spotAuthorization = async (req, _res, next) => {
     return next(spotDoesNotExistError);
   }
 
-  if (userId !== spot.ownerId) {
+  if (
+    (req.url.includes("bookings") && userId === spot.ownerId) ||
+    userId !== spot.ownerId
+  ) {
     return blockAuthorization(next);
   }
 
