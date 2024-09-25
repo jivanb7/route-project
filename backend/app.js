@@ -81,7 +81,7 @@ app.use((err, _req, _res, next) => {
 });
 
 // Error formatter
-app.use((err, req, res, _next) => {
+app.use((err, _req, res, _next) => {
   const { title, stack, status, message, errors } = err;
   res.status(status || 500);
 
@@ -94,7 +94,8 @@ app.use((err, req, res, _next) => {
     if (
       message !== "Invalid credentials" &&
       message !== "Forbidden" &&
-      message !== "Authentication required"
+      message !== "Authentication required" &&
+      message !== "The requested resource couldn't be found."
     ) {
       responseError.errors = errors;
     }
