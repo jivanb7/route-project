@@ -109,8 +109,6 @@ router.post(
       reviewId,
     });
 
-    newReviewImage = newReviewImage.toJSON();
-
     res.status(201).json({
       id: newReviewImage.id,
       url: newReviewImage.url,
