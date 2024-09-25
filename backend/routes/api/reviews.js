@@ -141,4 +141,22 @@ router.put(
   }
 );
 
+// delete a review by reviewId
+router.delete(
+  "/:reviewId",
+  requireAuth,
+  reviewAuthorization,
+  async (req, res) => {
+    const { reviewId } = req.params;
+
+    await Review.destroy({
+      where: {
+        id: reviewId,
+      },
+    });
+
+    res.status(200).json({ message: "Successfully deleted" });
+  }
+);
+
 module.exports = router;
