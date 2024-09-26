@@ -75,6 +75,7 @@ app.use((err, _req, _res, next) => {
       errors[error.path] = error.message;
     }
     err.title = "Validation error";
+    err.message = "Validation error";
     err.errors = errors;
   }
   next(err); // pass this modified err object to the next error handler
