@@ -60,7 +60,10 @@ router.get("/current", requireAuth, async (req, res) => {
     const formattedBookings = userBookings.map(booking => {
         const { id: bookingId, userId, startDate, endDate, createdAt, updatedAt } = booking;                                         
         const spot = booking.Spot;                                                                              
-        const { id: spotId, ownerId, address, city, state, country, lat, lng, name, price, SpotImages } = spot; 
+        let { id: spotId, ownerId, address, city, state, country, lat, lng, name, price, SpotImages } = spot; 
+        lat = parseInt(lat);
+        lng = parseInt(lng);
+        price = parseInt(price);
         const previewImage = SpotImages.find(image => image.preview);                                           
 
         const formattedBooking = {

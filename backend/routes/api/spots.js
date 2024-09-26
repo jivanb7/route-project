@@ -357,4 +357,58 @@ router.post(
   }
 );
 
+// get all Bookings for a Spot based on the Spot's id 
+router.get("/:spotId/bookings", requireAuth, async (req, res) => {
+  const { spotId } = req.params;                                                    
+  const userId = req.user.id;                                                       
+
+  const spot = await Spot.findByPk(spotId);
+  if (!spot) return res.status(404).json({message: spotDoesNotExistError.message}); 
+
+  const spotBookings = await Booking.findAll({
+    where: { spotId },
+    include: {
+      model: User,   
+      attributes: ['id', 'firstName', 'lastName'],          
+    },
+    attributes: ['id', 'spotId', 'userId', 'startDate', 'endDate', 'createdAt', 'updatedAt'],
+  });
+
+  if (spot.ownerId === userId) {                            
+    return res.status(200).json({ Bookings: spotBookings });
+  } else {
+    const nonOwnerBookings = spotBookings.map(booking => ({ 
+      spotId: booking.spotId,
+      startDate: booking.startDate,
+      endDate: booking.endDate,
+    }));
+
+    return res.status(200).json({ Bookings: nonOwnerBookings });  
+  }
+});
+
+// Create a Booking from a Spot based on the Spot's id
+router.post("/:spotId/bookings", requireAuth, async (req, res) => {
+
+  const { spotId } = req.params;            
+
+  const { startDate, endDate } = req.body;    
+
+  const spot = await Spot.findByPk(spotId); 
+  
+  if (!spot) {
+    return res.status(404).json({ message: spotDoesNotExistError.message}); 
+  }
+
+
+
+  const newBooking = await Booking.create({
+    userId: req.user.id,                    
+    spotId,                             
+    startDate,                             
+    endDate,                        
+  });
+  return res.status(201).json(newBooking); 
+});
+
 module.exports = { router, validateReviewDetails };
