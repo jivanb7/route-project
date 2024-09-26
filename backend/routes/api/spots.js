@@ -9,7 +9,7 @@ const {
   proposedStartDateConflicts,
   proposedEndDateConflicts,
   proposedBookingSpansExistingBooking,
-} = require("../../tests/datetests.js");
+} = require("../../utils/prohibitBookingOverlap.js");
 
 const {
   Spot,
