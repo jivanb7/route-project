@@ -30,6 +30,55 @@ const seedData = [
     lastName: "Potter",
     hashedPassword: bcrypt.hashSync("password3"),
   },
+  {
+    email: "hsimp123@springfield.com",
+    username: "Hsimpson123",
+    firstName: "Homer",
+    lastName: "Simpson",
+    hashedPassword: bcrypt.hashSync("donutLover123"),
+  },
+  {
+    email: "bsimp00@gmail.com",
+    username: "Bart00",
+    firstName: "Bart",
+    lastName: "Simpson",
+    hashedPassword: bcrypt.hashSync("danger00"),
+  },
+  {
+    email: "pgriffin@printing.com",
+    username: "pgriffin5",
+    firstName: "Peter",
+    lastName: "Griffin",
+    hashedPassword: bcrypt.hashSync("house5"),
+  },
+  {
+    email: "joeswan@hospital.com",
+    username: "joeswanson8",
+    firstName: "Joe",
+    lastName: "Swanson",
+    hashedPassword: bcrypt.hashSync("legshurt22"),
+  },
+  {
+    email: "anakins88@yahoo.com",
+    username: "anakinsky1",
+    firstName: "Anakin",
+    lastName: "Skywalker",
+    hashedPassword: bcrypt.hashSync("darthvader"),
+  },
+  {
+    email: "obilight@aol.com",
+    username: "obiwan4",
+    firstName: "Obiwan",
+    lastName: "Kenobi",
+    hashedPassword: bcrypt.hashSync("destroysith"),
+  },
+  {
+    email: "jivan123@facebook.com",
+    username: "jivan1000",
+    firstName: "Jivan",
+    lastName: "Skywalker",
+    hashedPassword: bcrypt.hashSync("darkside"),
+  },
 ];
 
 module.exports = {
