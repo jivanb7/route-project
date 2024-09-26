@@ -18,8 +18,8 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           cannotBeBeforeNow(value) {
-            if (value.getTime() < Date.now()) {
-              throw new Error("Start date cannot be in the past!");
+            if (value < new Date()) {
+              throw new Error("startDate cannot be in the past");
             }
           },
         },
@@ -29,8 +29,8 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           cannotBeBeforeStartDate(value) {
-            if (value.getTime() < this.startDate.getTime()) {
-              throw new Error("End date cannot be before start date!");
+            if (value <= this.startDate) {
+              throw new Error("endDate cannot be on or before startDate");
             }
           },
         },
