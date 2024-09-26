@@ -20,10 +20,23 @@ const spotDoesNotExistError = new Error("Spot couldn't be found");
 spotDoesNotExistError.status = 404;
 spotDoesNotExistError.message = "Spot couldn't be found";
 
+const bookingConflictError = {
+    message: "Sorry, this spot is already booked for the specified dates",
+    errors: {
+          startDate: "Start date conflicts with an existing booking",
+          endDate: "End date conflicts with an existing booking",
+        },
+      };
+
+
 // spot authorization middleware for anywhere a user must own the spot
 const spotAuthorization = async (req, _res, next) => {
   const userId = req.user.id;
   const { spotId } = req.params;
+
+  // if userid === spot.ownerid && req.url.includes bookings
+  // ( block authorization ) else 
+  // 
 
   const spot = await Spot.findByPk(spotId);
 
