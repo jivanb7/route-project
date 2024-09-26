@@ -16,12 +16,48 @@ const reviewImagesData = [
     url: "https://www.myReviewImage3.com",
   },
   {
-    reviewId: 3,
+    reviewId: 2,
     url: "https://www.myReviewImage4.com",
   },
   {
     reviewId: 3,
     url: "https://www.myReviewImage5.com",
+  },
+  {
+    reviewId: 3,
+    url: "https://www.myReviewImage6.com",
+  },
+  {
+    reviewId: 4,
+    url: "https://www.myReviewImage7.com",
+  },
+  {
+    reviewId: 4,
+    url: "https://www.myReviewImage8.com",
+  },
+  {
+    reviewId: 5,
+    url: "https://www.myReviewImage9.com",
+  },
+  {
+    reviewId: 5,
+    url: "https://www.myReviewImage10.com",
+  },
+  {
+    reviewId: 6,
+    url: "https://www.myReviewImage11.com",
+  },
+  {
+    reviewId: 6,
+    url: "https://www.myReviewImage12.com",
+  },
+  {
+    reviewId: 7,
+    url: "https://www.myReviewImage13.com",
+  },
+  {
+    reviewId: 7,
+    url: "https://www.myReviewImage14.com",
   },
 ];
 

@@ -122,13 +122,25 @@ const getAverageRating = (spotReviews) => {
   spotReviews.forEach((review) => {
     sumOfRatings += review.stars;
   });
-  return sumOfRatings / spotReviews.length;
+  const average = sumOfRatings / spotReviews.length;
+
+  if (!average) {
+    return null;
+  }
+
+  return average;
 };
 
 const findSpotPreviewImage = (spot) => {
-  return spot.SpotImages.find((spotImage) => {
+  const spotPreviewImage = spot.SpotImages.find((spotImage) => {
     return spotImage.preview === true;
   });
+
+  if (!spotPreviewImage) {
+    return null;
+  }
+
+  return spotPreviewImage;
 };
 
 const formatSpots = (spotsArray) => {
@@ -145,13 +157,14 @@ const formatSpots = (spotsArray) => {
     spotWithAggregates.lat = parseInt(lat);
     spotWithAggregates.lng = parseInt(lng);
 
-    if (avgRating) {
-      spotWithAggregates.avgRating = avgRating;
-    }
+    spotWithAggregates.avgRating = avgRating;
 
     if (preview) {
       spotWithAggregates.previewImage = preview.url;
+    } else {
+      spotWithAggregates.previewImage = null;
     }
+
     return spotWithAggregates;
   });
 };
@@ -524,4 +537,8 @@ router.post(
   }
 );
 
-module.exports = { router, validateReviewDetails, validateBookingDetails };
+module.exports = {
+  router,
+  validateReviewDetails,
+  validateBookingDetails,
+};

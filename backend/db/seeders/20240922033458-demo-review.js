@@ -33,6 +33,18 @@ const reviewsData = [
     review: "This was an awesome spot!",
     stars: 5,
   },
+  {
+    userId: 2,
+    spotId: 6,
+    review: "This was an awesome spot!",
+    stars: 5,
+  },
+  {
+    userId: 2,
+    spotId: 3,
+    review: "This was an awesome spot!",
+    stars: 5,
+  },
 ];
 
 /** @type {import('sequelize-cli').Migration} */
