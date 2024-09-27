@@ -104,18 +104,6 @@ app.use((err, req, res, _next) => {
     res.json(responseError);
   } else {
     // development error formatting
-    console.log("\nwe are in app.js responding with an error object\n");
-    if (req.user && req.url) {
-      console.log(
-        "\n this is the user logged in inside the error handler: ",
-        req.user.id
-      );
-      console.log(
-        "this is the requested resource inside error handler: ",
-        req.url,
-        "\n"
-      );
-    }
 
     res.json({
       title: title || "Server Error",
