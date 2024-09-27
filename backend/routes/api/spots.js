@@ -283,11 +283,6 @@ router.get("/current", requireAuth, async (req, res) => {
     },
   });
 
-  console.log(
-    "\n\n\n\n********All spots by user***************: ",
-    formatSpots(allSpotsByUser, "\n\n\n\n")
-  );
-
   res.status(200).json({ Spots: formatSpots(allSpotsByUser) });
 });
 
