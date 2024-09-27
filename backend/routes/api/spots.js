@@ -20,6 +20,8 @@ const {
   Booking,
 } = require("../../db/models");
 
+const { Op } = require("sequelize");
+
 const router = express.Router();
 
 // resuable custom error for any spot that is not found in the database
@@ -153,9 +155,9 @@ const formatSpots = (spotsArray) => {
     const { Reviews, SpotImages, price, lat, lng, ...spotWithAggregates } =
       spot;
 
-    spotWithAggregates.price = parseInt(price);
-    spotWithAggregates.lat = parseInt(lat);
-    spotWithAggregates.lng = parseInt(lng);
+    spotWithAggregates.price = Number(price);
+    spotWithAggregates.lat = Number(lat);
+    spotWithAggregates.lng = Number(lng);
 
     spotWithAggregates.avgRating = avgRating;
 
@@ -170,12 +172,104 @@ const formatSpots = (spotsArray) => {
 };
 
 // get all spots
-router.get("/", async (_req, res) => {
-  let allSpots = await Spot.findAll({
+// /api/spots?page=5&size=3&minLat=-70.6&maxLat=75.9&minLng=-173.343&maxLng=175.34&minPrice=50&maxPrice=400
+router.get("/", async (req, res, next) => {
+  // * generate a query object
+  const queryObj = {
+    where: {}, // for minLat, maxLat, minLng, maxLng, minPrice, maxPrice
     include: [SpotImage, Review],
-  });
+  };
 
-  res.status(200).json({ Spots: formatSpots(allSpots) });
+  let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } =
+    req.query;
+
+  const errorObj = {
+    message: "Bad Request",
+    status: 400,
+    errors: {},
+  };
+
+  if (page) {
+    page = Number(page);
+    if (isNaN(page) || page <= 0) {
+      errorObj.errors.page = "Page must be greater than or equal to 1";
+    }
+  }
+  if (size) {
+    size = Number(size);
+    if (isNaN(size) || size < 1 || size > 20) {
+      errorObj.errors.size = "Size must be between 1 and 20";
+    }
+  }
+
+  if (minLat) {
+    minLat = Number(minLat);
+    if (isNaN(minLat) || minLat < -90 || minLat > 90) {
+      errorObj.errors.minLat = "Minimum latitude is invalid";
+    } else {
+      queryObj.where.lat = { [Op.gte]: minLat };
+    }
+  }
+  if (maxLat) {
+    maxLat = Number(maxLat);
+    if (isNaN(maxLat) || maxLat < -90 || maxLat > 90) {
+      errorObj.errors.maxLat = "Maximum latitude is invalid";
+    } else {
+      queryObj.where.lat = { [Op.lte]: maxLat };
+    }
+  }
+  if (minLng) {
+    minLng = Number(minLng);
+    if (isNaN(minLng) || minLng < -180 || minLng > 180) {
+      errorObj.errors.minLng = "Minimum longitude is invalid";
+    } else {
+      queryObj.where.lng = { [Op.gte]: minLng };
+    }
+  }
+  if (maxLng) {
+    maxLng = Number(maxLng);
+    if (isNaN(maxLng) || maxLng < -180 || maxLng > 180) {
+      errorObj.errors.maxLng = "Maximum longitude is invalid";
+    } else {
+      queryObj.where.lng = { [Op.lte]: maxLng };
+    }
+  }
+  if (minPrice) {
+    minPrice = Number(minPrice);
+    if (isNaN(minPrice) || minPrice < 0) {
+      errorObj.errors.minPrice =
+        "Minimum price must be greater than or equal to 0";
+    } else {
+      queryObj.where.price = { [Op.gte]: minPrice };
+    }
+  }
+  if (maxPrice) {
+    maxPrice = Number(maxPrice);
+    if (isNaN(maxPrice) || maxPrice < 0) {
+      errorObj.errors.maxPrice =
+        "Maximum price must be greater than or equal to 0";
+    } else {
+      queryObj.where.price = { [Op.lte]: maxPrice };
+    }
+  }
+
+  if (Object.keys(errorObj.errors).length > 0) {
+    return next(errorObj);
+  }
+
+  // now safe to handle pagination here with any values passed in or default values
+
+  if (!page) page = 1;
+  if (!size) size = 20;
+
+  queryObj.limit = size;
+  queryObj.offset = size * (page - 1);
+
+  // handle query with the queryObj passed in
+
+  let allSpots = await Spot.findAll(queryObj);
+
+  res.status(200).json({ Spots: formatSpots(allSpots), page, size });
 });
 
 // get all spots by current user
