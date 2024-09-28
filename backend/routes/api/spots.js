@@ -462,7 +462,7 @@ router.post(
       endDate,
     });
 
-    return res.status(201).json(newBooking);
+    return res.status(201).json(formatBooking(newBooking));
   }
 );
 

@@ -75,8 +75,13 @@ const proposedStartDateConflicts = (
   existingBooking,
   bookingConflictError
 ) => {
-  const proposedStartDateString = proposedBooking.startDate.toUTCString();
-  const existingStartDateString = existingBooking.startDate.toUTCString();
+  // const proposedStartDateString = proposedBooking.startDate.toUTCString();
+  // const existingStartDateString = existingBooking.startDate.toUTCString();
+  const proposedStartDateString =
+    proposedBooking.startDate.toLocaleDateString();
+  const existingStartDateString =
+    existingBooking.startDate.toLocaleDateString();
+
   if (
     proposedStartDateString === existingStartDateString ||
     (proposedBooking.startDate > existingBooking.startDate &&
@@ -92,9 +97,13 @@ const proposedEndDateConflicts = (
   existingBooking,
   bookingConflictError
 ) => {
-  const proposedEndDateString = proposedBooking.endDate.toUTCString();
-  const existingStartDateString = existingBooking.startDate.toUTCString();
-  const existingEndDateString = existingBooking.endDate.toUTCString();
+  // const proposedEndDateString = proposedBooking.endDate.toUTCString();
+  // const existingStartDateString = existingBooking.startDate.toUTCString();
+  // const existingEndDateString = existingBooking.endDate.toUTCString();
+  const proposedEndDateString = proposedBooking.endDate.toLocaleDateString();
+  const existingStartDateString =
+    existingBooking.startDate.toLocaleDateString();
+  const existingEndDateString = existingBooking.endDate.toLocaleDateString();
   if (
     proposedEndDateString === existingEndDateString ||
     (proposedBooking.endDate < existingBooking.endDate &&
