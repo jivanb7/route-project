@@ -1,38 +1,18 @@
 const express = require("express");
-const { requireAuth, blockAuthorization } = require("../../utils/auth");
+const { requireAuth, reviewAuthorization } = require("../../utils/auth");
 
-const { validateReviewDetails } = require("./spots.js");
+const { validateReviewDetails } = require("../../utils/validation.js");
+const { formatReview } = require("../../utils/recordFormatters.js");
 
-const { check } = require("express-validator");
-const { handleValidationErrors } = require("../../utils/validation");
-
-const { Review, Spot, ReviewImage, SpotImage } = require("../../db/models");
+const {
+  Review,
+  Spot,
+  ReviewImage,
+  SpotImage,
+  User,
+} = require("../../db/models");
 
 const router = express.Router();
-
-const reviewNotFoundError = new Error(
-  "Couldn't find a Review with the specified id"
-);
-reviewNotFoundError.status = 404;
-reviewNotFoundError.message = "Review couldn't be found";
-
-const reviewAuthorization = async (req, _res, next) => {
-  const userId = req.user.id;
-
-  const { reviewId } = req.params;
-
-  const review = await Review.findByPk(reviewId);
-
-  if (!review) {
-    return next(reviewNotFoundError);
-  }
-
-  if (userId !== review.userId) {
-    return blockAuthorization(next);
-  }
-
-  next();
-};
 
 // get all reviews written by the current user
 router.get("/current", requireAuth, async (req, res, next) => {
@@ -46,38 +26,18 @@ router.get("/current", requireAuth, async (req, res, next) => {
       {
         model: Spot,
         include: [{ model: SpotImage, attributes: ["preview", "url"] }],
-        attributes: { exclude: ["createdAt", "updatedAt"] },
+        attributes: { exclude: ["createdAt", "updatedAt", "description"] },
       },
       {
         model: ReviewImage,
         attributes: ["id", "url"],
       },
+      { model: User, attributes: ["id", "firstName", "lastName"] },
     ],
   });
 
   const reviewsArray = allReviewsByUser.map((reviewObj) => {
-    reviewObj = reviewObj.toJSON();
-
-    const User = {
-      id: req.user.id,
-      firstName: req.user.firstName,
-      lastName: req.user.lastName,
-    };
-
-    reviewObj.User = User;
-
-    const previewImg = reviewObj.Spot.SpotImages.find(
-      (spotImage) => spotImage.preview
-    );
-    if (previewImg) {
-      reviewObj.Spot.previewImage = previewImg.url;
-    } else {
-      reviewObj.Spot.previewImage = null;
-    }
-
-    delete reviewObj.Spot.SpotImages;
-
-    return reviewObj;
+    return formatReview(reviewObj);
   });
 
   res.status(200).json({ Reviews: reviewsArray });
@@ -127,17 +87,23 @@ router.put(
   async (req, res) => {
     const { reviewId } = req.params;
     let { review, stars } = req.body;
-    stars = parseInt(stars);
+    stars = Number(stars);
+
     const reviewInstance = await Review.findByPk(reviewId);
+
     const currentTimeStamp = new Date();
     reviewInstance.set({
       review,
       stars,
       updatedAt: currentTimeStamp,
     });
+
     await reviewInstance.save();
-    const reviewToDisplay = await reviewInstance.reload();
-    res.status(200).json(reviewToDisplay);
+    const updatedReview = await reviewInstance.reload();
+
+    const formattedReview = formatReview(updatedReview);
+
+    res.status(200).json(formattedReview);
   }
 );
 
