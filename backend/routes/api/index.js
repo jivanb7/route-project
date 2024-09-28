@@ -2,7 +2,7 @@
 const router = require("express").Router();
 const sessionRouter = require("./session.js");
 const usersRouter = require("./users.js");
-const { router: spotsRouter } = require("./spots.js");
+const spotsRouter = require("./spots.js");
 const reviewsRouter = require("./reviews.js");
 const spotImagesRouter = require("./spot-images.js");
 const reviewImagesRouter = require("./review-images.js");
