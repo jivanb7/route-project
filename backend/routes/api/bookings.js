@@ -5,6 +5,7 @@ const { validateBookingDetails } = require("../../utils/validation.js");
 const { Spot, Booking, SpotImage } = require("../../db/models");
 
 const { formatBooking } = require("../../utils/recordFormatters.js");
+const { determineIfBookingConflicts } = require("../../utils/customErrors.js");
 
 const router = express.Router();
 
@@ -41,10 +42,28 @@ router.put(
   requireAuth,
   bookingAuthorization,
   validateBookingDetails,
-  async (req, res) => {
+  async (req, res, next) => {
     const { bookingId } = req.params;
 
-    const bookingToUpdate = await Booking.findByPk(bookingId);
+    let bookingToUpdate = await Booking.findByPk(bookingId, {
+      include: { model: Spot, include: [{ model: Booking }] },
+    });
+
+    // return an array of the Spot's existing bookings that excludes the booking we are trying to update
+    const otherExistingBookings = bookingToUpdate.Spot.Bookings.filter(
+      (booking) => booking.id !== Number(bookingId)
+    );
+
+    // This booking cannot conflict with any existingBookings besides itself
+    const bookingConflictError = determineIfBookingConflicts(
+      req.body,
+      otherExistingBookings
+    );
+
+    // bookingConflictError is either a custom error object or undefined
+    if (bookingConflictError) {
+      return next(bookingConflictError);
+    }
 
     bookingToUpdate.set({
       ...req.body,
@@ -55,7 +74,20 @@ router.put(
 
     const updatedBooking = await bookingToUpdate.reload();
 
-    const formattedUpdatedBooking = formatBooking(updatedBooking);
+    const { id, spotId, userId, startDate, endDate, createdAt, updatedAt } =
+      updatedBooking;
+
+    const bookingDetailsToDisplay = {
+      id,
+      spotId,
+      userId,
+      startDate,
+      endDate,
+      createdAt,
+      updatedAt,
+    };
+
+    const formattedUpdatedBooking = formatBooking(bookingDetailsToDisplay);
 
     res.status(200).json(formattedUpdatedBooking);
   }

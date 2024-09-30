@@ -3,13 +3,15 @@ const jwt = require("jsonwebtoken");
 const { jwtConfig } = require("../config");
 const { User } = require("../db/models");
 
+const { resourceNotFoundErrors } = require("./customErrors.js");
+
 const {
   spotNotFoundError,
   spotImageNotFoundError,
   bookingNotFoundError,
   reviewNotFoundError,
   reviewImageNotFoundError,
-} = require("./resourceNotFoundErrors.js");
+} = resourceNotFoundErrors;
 
 const {
   Spot,
