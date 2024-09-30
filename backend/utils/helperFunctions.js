@@ -71,8 +71,6 @@ const multipleDateFormatter = (createdAt, updatedAt, ...dates) => {
 // Functions to Detect Booking Conflicts
 
 const proposedStartDateConflicts = (proposedBooking, existingBooking) => {
-  // const proposedStartDateString = proposedBooking.startDate.toUTCString();
-  // const existingStartDateString = existingBooking.startDate.toUTCString();
   const proposedStartDateString =
     proposedBooking.startDate.toLocaleDateString();
   const existingStartDateString =
@@ -86,9 +84,6 @@ const proposedStartDateConflicts = (proposedBooking, existingBooking) => {
 };
 
 const proposedEndDateConflicts = (proposedBooking, existingBooking) => {
-  // const proposedEndDateString = proposedBooking.endDate.toUTCString();
-  // const existingStartDateString = existingBooking.startDate.toUTCString();
-  // const existingEndDateString = existingBooking.endDate.toUTCString();
   const proposedEndDateString = proposedBooking.endDate.toLocaleDateString();
   const existingStartDateString =
     existingBooking.startDate.toLocaleDateString();
