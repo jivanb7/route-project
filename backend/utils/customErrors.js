@@ -49,13 +49,10 @@ const determineIfBookingConflicts = (proposedBooking, existingBookingsArr) => {
       bookingConflictError.errors.endDate = endDateConflictMessage;
     }
 
-    // return the error bookingConflictError early if at any point during the loop we discover a conflict
     if (Object.keys(bookingConflictError.errors).length > 0) {
       return bookingConflictError;
     }
   }
-
-  // if we finish the loop without returning, we can implicitly return and thus have the falsy value of undefined
 };
 
 module.exports = { resourceNotFoundErrors, determineIfBookingConflicts };

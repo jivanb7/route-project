@@ -2,12 +2,7 @@ const express = require("express");
 
 const { requireAuth, spotAuthorization } = require("../../utils/auth");
 
-const {
-  getAverageRating,
-  proposedStartDateConflicts,
-  proposedEndDateConflicts,
-  proposedBookingSpansExistingBooking,
-} = require("../../utils/helperFunctions.js");
+const { getAverageRating } = require("../../utils/helperFunctions.js");
 
 const {
   resourceNotFoundErrors,
@@ -355,7 +350,7 @@ router.post(
   }
 );
 
-// get all Bookings for a Spot based on the Spot's id
+// get all bookings for a spot based on the spot's id
 router.get("/:spotId/bookings", requireAuth, async (req, res, next) => {
   const { spotId } = req.params;
   const userId = req.user.id;
@@ -407,7 +402,7 @@ router.get("/:spotId/bookings", requireAuth, async (req, res, next) => {
   return res.status(200).json({ Bookings: bookingsToDisplay });
 });
 
-// Create a Booking from a Spot based on the Spot's id
+// create a booking from a spot based on the spot's id
 router.post(
   "/:spotId/bookings",
   requireAuth,
@@ -430,45 +425,14 @@ router.post(
       return next(spotNotFoundError);
     }
 
-    // This booking cannot conflict with other bookings
-
     const bookingConflictError = determineIfBookingConflicts(
       proposedBooking,
       spot.Bookings
     );
 
-    // bookingConflictError is either a custom error object or undefined
     if (bookingConflictError) {
       return next(bookingConflictError);
     }
-
-    // const bookingConflictError = {
-    //   message: "Sorry, this spot is already booked for the specified dates",
-    //   status: 403,
-    //   errors: {},
-    // };
-
-    // for (let existingBooking of spot.Bookings) {
-    //   proposedStartDateConflicts(
-    //     proposedBooking,
-    //     existingBooking,
-    //     bookingConflictError
-    //   );
-    //   proposedEndDateConflicts(
-    //     proposedBooking,
-    //     existingBooking,
-    //     bookingConflictError
-    //   );
-    //   proposedBookingSpansExistingBooking(
-    //     proposedBooking,
-    //     existingBooking,
-    //     bookingConflictError
-    //   );
-
-    //   if (Object.keys(bookingConflictError.errors).length > 0) {
-    //     return next(bookingConflictError);
-    //   }
-    // }
 
     const newBooking = await Booking.create({
       userId: req.user.id,

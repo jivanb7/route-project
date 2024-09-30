@@ -36,7 +36,7 @@ router.get("/current", requireAuth, async (req, res) => {
   res.status(200).json({ Bookings: formattedBookings });
 });
 
-// Edit a booking
+// edit a booking by bookingId
 router.put(
   "/:bookingId",
   requireAuth,
@@ -49,18 +49,15 @@ router.put(
       include: { model: Spot, include: [{ model: Booking }] },
     });
 
-    // return an array of the Spot's existing bookings that excludes the booking we are trying to update
     const otherExistingBookings = bookingToUpdate.Spot.Bookings.filter(
       (booking) => booking.id !== Number(bookingId)
     );
 
-    // This booking cannot conflict with any existingBookings besides itself
     const bookingConflictError = determineIfBookingConflicts(
       req.body,
       otherExistingBookings
     );
 
-    // bookingConflictError is either a custom error object or undefined
     if (bookingConflictError) {
       return next(bookingConflictError);
     }
@@ -93,7 +90,7 @@ router.put(
   }
 );
 
-// Delete a booking by ID
+// delete a booking by bookingId
 router.delete(
   "/:bookingId",
   requireAuth,
