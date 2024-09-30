@@ -70,11 +70,7 @@ const multipleDateFormatter = (createdAt, updatedAt, ...dates) => {
 
 // Functions to Detect Booking Conflicts
 
-const proposedStartDateConflicts = (
-  proposedBooking,
-  existingBooking,
-  bookingConflictError
-) => {
+const proposedStartDateConflicts = (proposedBooking, existingBooking) => {
   // const proposedStartDateString = proposedBooking.startDate.toUTCString();
   // const existingStartDateString = existingBooking.startDate.toUTCString();
   const proposedStartDateString =
@@ -82,21 +78,14 @@ const proposedStartDateConflicts = (
   const existingStartDateString =
     existingBooking.startDate.toLocaleDateString();
 
-  if (
+  return (
     proposedStartDateString === existingStartDateString ||
     (proposedBooking.startDate > existingBooking.startDate &&
       proposedBooking.startDate < existingBooking.endDate)
-  ) {
-    bookingConflictError.errors.startDate =
-      "Start date conflicts with an existing booking";
-  }
+  );
 };
 
-const proposedEndDateConflicts = (
-  proposedBooking,
-  existingBooking,
-  bookingConflictError
-) => {
+const proposedEndDateConflicts = (proposedBooking, existingBooking) => {
   // const proposedEndDateString = proposedBooking.endDate.toUTCString();
   // const existingStartDateString = existingBooking.startDate.toUTCString();
   // const existingEndDateString = existingBooking.endDate.toUTCString();
@@ -104,31 +93,22 @@ const proposedEndDateConflicts = (
   const existingStartDateString =
     existingBooking.startDate.toLocaleDateString();
   const existingEndDateString = existingBooking.endDate.toLocaleDateString();
-  if (
+  return (
     proposedEndDateString === existingEndDateString ||
     (proposedBooking.endDate < existingBooking.endDate &&
       proposedBooking.endDate > existingBooking.startDate) ||
     proposedEndDateString === existingStartDateString
-  ) {
-    bookingConflictError.errors.endDate =
-      "End date conflicts with an existing booking";
-  }
+  );
 };
 
 const proposedBookingSpansExistingBooking = (
   proposedBooking,
-  existingBooking,
-  bookingConflictError
+  existingBooking
 ) => {
-  if (
+  return (
     proposedBooking.startDate < existingBooking.startDate &&
     proposedBooking.endDate > existingBooking.endDate
-  ) {
-    bookingConflictError.errors.startDate =
-      "Start date conflicts with an existing booking";
-    bookingConflictError.errors.endDate =
-      "End date conflicts with an existing booking";
-  }
+  );
 };
 
 module.exports = {
